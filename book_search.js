@@ -22,12 +22,28 @@
     /** You will need to implement your search and 
      * return the appropriate object here. */
 
-    var result = {
-        "SearchTerm": "",
-        "Results": []
+    const matches = []
+
+    for (const book of scannedTextObj) { // each book provided
+        for (const content of book["Content"]) { // each scanned content available for each book
+            // case-sensitive comparison
+            if (content["Text"].includes(searchTerm)) {
+                // we have a match
+                matches.push(
+                    {
+                        "ISBN": book["ISBN"],
+                        "Page": content["Page"],
+                        "Line": content["Line"]
+                    }
+                )
+            }
+        }
+    }
+
+    return {
+        "SearchTerm": searchTerm,
+        "Results": matches
     };
-    
-    return result; 
 }
 
 /** Example input object. */
@@ -101,4 +117,115 @@ if (test2result.Results.length == 1) {
     console.log("FAIL: Test 2");
     console.log("Expected:", twentyLeaguesOut.Results.length);
     console.log("Received:", test2result.Results.length);
+}
+
+
+const twentyLeaguesNegativeOutput = {
+    "SearchTerm": "come",
+    "Results": []
+}
+/** Test with a search term that is not present in any content. */
+const negativeTestResult = findSearchTermInBooks("come", twentyLeaguesIn);
+if (JSON.stringify(twentyLeaguesNegativeOutput) === JSON.stringify(negativeTestResult)) {
+    console.log("PASS: Test 3");
+} else {
+    console.log("FAIL: Test 3");
+    console.log("Expected:", twentyLeaguesNegativeOutput);
+    console.log("Received:", negativeTestResult);
+}
+
+
+const twentyLeaguesPositiveOutput = {
+    "SearchTerm": "momentum",
+    "Results": [
+        {
+            "ISBN": "9780000528531",
+            "Page": 31,
+            "Line": 8
+        }
+    ]
+}
+/** Test with a search term that is present in the content. */
+const positiveTestResult = findSearchTermInBooks("momentum", twentyLeaguesIn);
+if (JSON.stringify(twentyLeaguesPositiveOutput) === JSON.stringify(positiveTestResult)) {
+    console.log("PASS: Test 4");
+} else {
+    console.log("FAIL: Test 4");
+    console.log("Expected:", twentyLeaguesPositiveOutput);
+    console.log("Received:", negativeTestResult);
+}
+
+
+const twentyLeaguesMultipleMatchesOutput = {
+    "SearchTerm": "and",
+    "Results": [
+        {
+            "ISBN": "9780000528531",
+            "Page": 31,
+            "Line": 9
+        },
+        {
+            "ISBN": "9780000528531",
+            "Page": 31,
+            "Line": 10
+        }
+    ]
+}
+
+/**
+ * Test with a search term that appears multiple times in the same content piece.
+ * Ensure all occurrences are captured in the results.
+ */
+const multipleMatchesResult = findSearchTermInBooks("and", twentyLeaguesIn);
+if (JSON.stringify(twentyLeaguesMultipleMatchesOutput) === JSON.stringify(multipleMatchesResult)) {
+    console.log("PASS: Test 5");
+} else {
+    console.log("FAIL: Test 5");
+    console.log("Expected:", twentyLeaguesMultipleMatchesOutput);
+    console.log("Received:", multipleMatchesResult);
+}
+
+
+const twentyLeaguesCaseSensitiveOutput = {
+    "SearchTerm": "The",
+    "Results": [
+        {
+            "ISBN": "9780000528531",
+            "Page": 31,
+            "Line": 8
+        }
+    ]
+}
+/**
+ * Test with a search term that is case-sensitive.
+ * Ensure the correct results are returned, considering the case.
+ */
+const caseSensitiveResult = findSearchTermInBooks("The", twentyLeaguesIn);
+if (JSON.stringify(twentyLeaguesCaseSensitiveOutput) === JSON.stringify(caseSensitiveResult)) {
+    console.log("PASS: Test 6");
+} else {
+    console.log("FAIL: Test 6");
+    console.log("Expected:", twentyLeaguesCaseSensitiveOutput);
+    console.log("Received:", caseSensitiveResult);
+}
+
+
+const twentyLeaguesPunctuationOutput = {
+    "SearchTerm": "Canadian's",
+    "Results": [
+        {
+            "ISBN": "9780000528531",
+            "Page": 31,
+            "Line": 9
+        }
+    ]
+}
+/** Test with a search term that includes punctuation. */
+const punctuationResult = findSearchTermInBooks("Canadian's", twentyLeaguesIn);
+if (JSON.stringify(twentyLeaguesPunctuationOutput) === JSON.stringify(punctuationResult)) {
+    console.log("PASS: Test 7");
+} else {
+    console.log("FAIL: Test 7");
+    console.log("Expected:", twentyLeaguesPunctuationOutput);
+    console.log("Received:", punctuationResult);
 }
